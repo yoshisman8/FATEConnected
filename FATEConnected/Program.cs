@@ -66,14 +66,14 @@ namespace FATEConnected
             });
 
             // Register all command modules.
-            Slash.RegisterCommands<CharacterModule>(377155313557831690);
-            Slash.RegisterCommands<ChararcterSubModule>(377155313557831690);
-            Slash.RegisterCommands<SetCommands>(377155313557831690);
-            Slash.RegisterCommands<SkillModule>(377155313557831690);
-            Slash.RegisterCommands<AspectModule>(377155313557831690);
-            Slash.RegisterCommands<ConsequenceModule>(377155313557831690);
-            Slash.RegisterCommands<GameplayModule>(377155313557831690);
-            Slash.RegisterCommands<CampaignModule>(377155313557831690);
+            Slash.RegisterCommands<CharacterModule>();
+            Slash.RegisterCommands<ChararcterSubModule>();
+            Slash.RegisterCommands<SetCommands>();
+            Slash.RegisterCommands<SkillModule>();
+            Slash.RegisterCommands<AspectModule>();
+            Slash.RegisterCommands<ConsequenceModule>();
+            Slash.RegisterCommands<GameplayModule>();
+            Slash.RegisterCommands<CampaignModule>();
 
 
 
