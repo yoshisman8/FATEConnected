@@ -72,6 +72,31 @@ namespace FATEConnected.Model
         public List<Stunt> Stunts { get; set; } = new List<Stunt>();
         public Dictionary<Consequence,string> Consequences { get; set; } = new Dictionary<Consequence,string>();
 
+
+        public int GetMaxStress(bool mental)
+        {
+            
+            if(Link> -1 && LinkActor != null)
+            {
+                int score = 0;
+                if (mental)
+                {
+                    score = Math.Max((int)LinkActor.Skills["Will"].Rank, (int)Skills["Will"].Rank);
+                    return 2 + (score >= 1 ? 1 : 0) + (score >= 3 ? 1 : 0);
+                }
+                else
+                {
+                    score = Math.Max((int)LinkActor.Skills["Physique"].Rank, (int)Skills["Physique"].Rank);
+                    return 2 + (score >= 1 ? 1 : 0) + (score >= 3 ? 1 : 0);
+                }
+                
+            }
+            else
+            {
+                if (mental) return 2 + ((int)Skills["Will"].Rank >= 1 ? 1 : 0) + ((int)Skills["Will"].Rank >= 3 ? 1 : 0);
+                return 2 + ((int)Skills["Physique"].Rank >= 1 ? 1 : 0) + ((int)Skills["Physique"].Rank >= 3 ? 1 : 0);
+            }
+        }
         public DiscordInteractionResponseBuilder GetSheet(int Page)
         {
             DiscordEmbed Embed = null;
@@ -91,10 +116,20 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {LinkActor.Fate.Bar(LinkActor.Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(LinkActor.PStress[1]?Dictionaries.Icons["phurt"]:Dictionaries.Icons["phy"])}{(LinkActor.PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(LinkActor.PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(LinkActor.MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(LinkActor.MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
+
 
                 }
                 else
@@ -103,18 +138,26 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {Fate.Bar(Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(PStress[1] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
-
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
                 }
 
                 MainPage.WithDescription(body.ToString());
 
                 body.Clear();
 
-                foreach(var asp in Aspects)
+                foreach(var asp in Aspects.OrderBy(x=>x))
                 {
                     body.AppendLine($"• {asp}");
                 }
@@ -155,10 +198,20 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {LinkActor.Fate.Bar(LinkActor.Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(LinkActor.PStress[1] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(LinkActor.PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(LinkActor.MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(LinkActor.MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
+
 
                 }
                 else
@@ -167,11 +220,19 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {Fate.Bar(Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(PStress[1] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
-
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
                 }
 
                 SkillsPage.WithDescription(body.ToString());
@@ -219,10 +280,20 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {LinkActor.Fate.Bar(LinkActor.Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(LinkActor.PStress[1] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(LinkActor.PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(LinkActor.PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(LinkActor.MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(LinkActor.MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(LinkActor.MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
+
 
                 }
                 else
@@ -231,11 +302,19 @@ namespace FATEConnected.Model
                     body.AppendLine($"> {Fate.Bar(Refresh)}");
 
                     body.AppendLine($"Physical Stress");
-                    body.AppendLine($"> {(PStress[1] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[2] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[3] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}{(PStress[4] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"])}");
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(false); i++)
+                    {
+                        body.Append(PStress[i] ? Dictionaries.Icons["phurt"] : Dictionaries.Icons["phy"]);
+                    }
+                    body.Append("\n");
 
                     body.AppendLine($"Mental Stress");
-                    body.AppendLine($"> {(MStress[1] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[2] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[3] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}{(MStress[4] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"])}");
-
+                    body.Append("> ");
+                    for (int i = 1; i <= GetMaxStress(true); i++)
+                    {
+                        body.Append(MStress[i] ? Dictionaries.Icons["mhurt"] : Dictionaries.Icons["men"]);
+                    }
                 }
 
                 StuntsPage.WithDescription(body.ToString());

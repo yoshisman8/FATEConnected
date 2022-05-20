@@ -65,7 +65,7 @@ namespace FATEConnected.Services
         public Actor GetActor(int id)
         {
             var actors = database.GetCollection<Actor>("Actors");
-
+            
             return actors.FindById(id);
         }
         public void UpdateUser(User U)

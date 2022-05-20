@@ -141,7 +141,7 @@ namespace FATEConnected.Modules
             [Option("Type", "Is this Physical or Mental stress?")] StressType type,
             [Option("Severity", "Severity of the stress. Ranges 1 thru 4.")] long value,
             [Autocomplete(typeof(GMActorAutoComplete))]
-            [Option("Name","GM Only. Name of the character.")]string Name)
+            [Option("Name","GM Only. Name of the character.")]string Name = null)
         {
             value = Math.Abs(value);
             if (value < 1) value = 1;
@@ -161,6 +161,19 @@ namespace FATEConnected.Modules
                 }
 
                 actor = user.Primary;
+
+                if (actor.Link > -1)
+                {
+                    if (actor.Secondary)
+                    {
+                        actor = utils.GetActor(actor.Link);
+                        actor.LinkActor = utils.GetActor(actor.Link);
+                    }
+                    else
+                    {
+                        actor.LinkActor = utils.GetActor(actor.Link);
+                    }
+                }
             }
             else
             {
@@ -181,25 +194,39 @@ namespace FATEConnected.Modules
                         .WithContent($"The {campaign.Name} does not have a character named \"{Name}\"."));
                     return;
                 }
+                if(_actor.Link > -1)
+                {
+                    _actor.LinkActor = utils.GetActor(_actor.Link);
+                }
                 actor = _actor;
             }
             
             bool KO = false;
-
+            int cap = 2;
             switch (type)
             {
                 case StressType.Physical:
-                    for(int i = (int)value; i < 5; i++)
+                    cap = actor.GetMaxStress(false);
+                    for (int i = (int)value; i <= (cap +1); i++)
                     {
-                        if (i == 5) { KO = true; break; }
+                        if (i == (cap + 1)) 
+                        { 
+                            KO = true; 
+                            break;
+                        }
                         else if (actor.PStress[i]) continue;
                         else { actor.PStress[i] = true; break; }
                     }
                     break;
                 case StressType.Mental:
-                    for (int i = (int)value; i < 5; i++)
+                    cap = actor.GetMaxStress(true);
+                    for (int i = (int)value; i <= (cap + 1); i++)
                     {
-                        if (i == 5) { KO = true; break; }
+                        if (i == (cap + 1)) 
+                        { 
+                            KO = true;
+                            break;
+                        }
                         else if (actor.MStress[i]) continue;
                         else { actor.MStress[i] = true; break; }
                     }
@@ -213,12 +240,12 @@ namespace FATEConnected.Modules
             if (actor.Link > -1)
             {
                 if (KO) message = $"{actor.Name} & {actor.LinkActor.Name} took more {type} stress than what they could take! They are out of the fight!";
-                else message = $"{actor.Name} & {actor.LinkActor.Name} took {value}{type} stress!";
+                else message = $"{actor.Name} & {actor.LinkActor.Name} took {value} {type} stress!";
             }
             else
             {
                 if (KO) message = $"{actor.Name} took more {type} stress than what they could take! They are out of the fight!";
-                else message = $"{actor.Name} took {value}{type} stress!";
+                else message = $"{actor.Name} took {value} {type} stress!";
             }
 
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,

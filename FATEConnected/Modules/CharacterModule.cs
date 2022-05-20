@@ -269,6 +269,8 @@ namespace FATEConnected.Modules
             User user = utils.GetUser(context.User.Id);
 
             master.Link = slave.Id;
+            master.Secondary = false;
+
             slave.Link = master.Id;
             slave.Secondary = true;
 
@@ -277,6 +279,8 @@ namespace FATEConnected.Modules
 
             user.Primary = master;
             user.Secondary = slave;
+
+            utils.UpdateUser(user);
 
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder()

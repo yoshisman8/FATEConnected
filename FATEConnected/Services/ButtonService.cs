@@ -59,7 +59,8 @@ namespace FATEConnected.Services
                     }
                     else
                     {
-                        actor.LinkActor = col.FindById(actor.Link);
+                        actor.LinkActor = link;
+                        actor.LinkActor.LinkActor = actor;
                     }
                 }
                 if(args[2] == "swap" && actor.LinkActor != null)
@@ -83,14 +84,14 @@ namespace FATEConnected.Services
 
                 foreach(var u in users)
                 {
-                    if (u.Primary.Id == id) u.Primary = null;
-                    if (u.Secondary.Id == id) u.Secondary = null;
+                    if (u.Primary != null && u.Primary.Id == id) u.Primary = null;
+                    if (u.Secondary != null && u.Secondary.Id == id) u.Secondary = null;
                     utils.UpdateUser(u);
                 }
 
-                var campaigns = campaignCollection.Include(x=>x.Actors).Find(x=> x.Actors.Any(x=>x.Id == id));
+                var campaigns = campaignCollection.Include(x=>x.Actors).Find(x=>x.Server == e.Guild.Id);
 
-                foreach(var camp in campaigns)
+                foreach(var camp in campaigns.Where(x=>x.Actors.Any(x=>x.Id == id)))
                 {
                     var index = camp.Actors.FindIndex(x=>x.Id == id);
                     camp.Actors.RemoveAt(index);
