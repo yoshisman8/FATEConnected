@@ -659,6 +659,92 @@ namespace FATEConnected.Modules
     }
     #endregion
 
+    #region Stunts Management
+    [SlashCommandGroup("Stunts", "Manage your active character's stunts.")]
+    public class StuntModule : ApplicationCommandModule
+    {
+        public Services.Utilities utils;
+        public LiteDatabase db;
+
+        [SlashCommand("Add", "Add a new stunt to your active character.")]
+        public async Task Add(InteractionContext context, [Option("Name", "The name of the stunt.")] string name ,[Option("Description","What does this stunt do?")]string description)
+        {
+            User user = utils.GetUser(context.User.Id);
+
+            if (user.Primary == null)
+            {
+                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().WithContent("You do not have an active character. Create one using the `/Character Create` command or select an existing one using `/Character Swap` first!"));
+                return;
+            }
+
+            Actor actor = user.Primary;
+
+            if (actor.Stunts.Any(x => x.Name.ToLower() == name.ToLower()))
+            {
+                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                    .WithContent($"{actor.Name} already has stunt with that exact name!"));
+                return;
+            }
+
+            actor.Stunts.Add(new Stunt()
+            {
+                Name = name,
+                Description = description
+            });
+
+            utils.UpdateActor(actor);
+
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                    .WithContent($"Added new Stunt to {actor.Name}'s sheet!")
+                    .AddEmbed(new DiscordEmbedBuilder()
+                            .WithTitle(name)
+                            .WithDescription(description)
+                            .WithColor(new DiscordColor(actor.Color))
+                            .WithThumbnail(actor.Image))
+                    );
+            return;
+        }
+
+        [SlashCommand("Remove", "Removes a stunt from your active character.")]
+        public async Task Remove(InteractionContext context,
+            [Autocomplete(typeof(StuntAutoComplete))]
+                [Option("Stunt", "Exact Name on the stunt.")]string Name)
+        {
+            User user = utils.GetUser(context.User.Id);
+
+            if (user.Primary == null)
+            {
+                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().WithContent("You do not have an active character. Create one using the `/Character Create` command or select an existing one using `/Character Swap` first!"));
+                return;
+            }
+
+            Actor actor = user.Primary;
+
+            if (!actor.Stunts.Any(x => x.Name.ToLower() == Name.ToLower()))
+            {
+                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                    .WithContent($"{actor.Name} doesn't have that stunt!"));
+                return;
+            }
+
+            actor.Stunts.RemoveAll(x=>x.Name.ToLower() == Name.ToLower());
+
+            utils.UpdateActor(actor);
+
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                    .WithContent($"Removed the Stunt \"{Name}\" from {actor.Name}'s sheet.")
+                    );
+            return;
+        }
+    }
+    #endregion
+
     #region Consequence Management
     [SlashCommandGroup("Consequences", "Manage your active character's aspects.")]
     public class ConsequenceModule : ApplicationCommandModule

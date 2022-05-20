@@ -68,6 +68,7 @@ namespace FATEConnected
             // Register all command modules.
             Slash.RegisterCommands<CharacterModule>();
             Slash.RegisterCommands<ChararcterSubModule>();
+            Slash.RegisterCommands<StuntModule>();
             Slash.RegisterCommands<SetCommands>();
             Slash.RegisterCommands<SkillModule>();
             Slash.RegisterCommands<AspectModule>();
